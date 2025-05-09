@@ -1,38 +1,44 @@
 interface ResponseDisplayProps {
-  response: string;
+  response: string | null;
   isLoading: boolean;
 }
 
-const ResponseDisplay = ({ response, isLoading }: ResponseDisplayProps) => {
-  if (!response && !isLoading) {
-    return null;
+export function ResponseDisplay({ response, isLoading }: ResponseDisplayProps) {
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-4 border-t-blue-500 border-r-transparent border-b-transparent border-l-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-slate-600">Processing your voice input...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!response) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex flex-col items-center">
+          <p className="text-slate-500 italic">
+            Voice responses will appear here after recording
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="mt-6">
-      <h2 className="text-lg font-semibold mb-2">Gemini Response:</h2>
-      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-32">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-32">
-            <div
-              className="w-2 h-2 bg-blue-500 rounded-full mr-1 animate-bounce"
-              style={{ animationDelay: "0s" }}
-            ></div>
-            <div
-              className="w-2 h-2 bg-blue-500 rounded-full mr-1 animate-bounce"
-              style={{ animationDelay: "0.2s" }}
-            ></div>
-            <div
-              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-              style={{ animationDelay: "0.4s" }}
-            ></div>
-          </div>
-        ) : (
-          <div className="whitespace-pre-wrap">{response}</div>
-        )}
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-lg font-semibold text-slate-800 mb-3">
+        Gemini's Response
+      </h2>
+      <div className="prose prose-slate max-w-none">
+        {response.split("\n").map((paragraph, index) => (
+          <p key={index} className={paragraph.trim() === "" ? "h-4" : "mb-4"}>
+            {paragraph}
+          </p>
+        ))}
       </div>
     </div>
   );
-};
-
-export default ResponseDisplay;
+}
