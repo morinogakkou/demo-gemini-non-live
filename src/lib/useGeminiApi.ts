@@ -25,7 +25,7 @@ export function useGeminiApi(apiKey: string) {
 
       // Create the content parts
       const textPart: Part = {
-        text: "You are now a cute girl.",
+        text: `respond in this format: '{"transcriptOfInput":"...","response":"..."}'`,
       };
 
       // Generate content with the audio input
@@ -42,8 +42,16 @@ export function useGeminiApi(apiKey: string) {
         });
 
       // Return the response text
-      const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-      return text;
+      const text = result.text;
+      let jsonResponse: { transcriptOfInput: string; response: string };
+      let transcriptOfInput: string | undefined;
+      let response: string | undefined;
+      if (typeof text === "string") {
+        jsonResponse = JSON.parse(text);
+        transcriptOfInput = jsonResponse.transcriptOfInput;
+        response = jsonResponse.response;
+      }
+      return text + "\n" + transcriptOfInput + "\n" + response;
     } catch (error) {
       console.error("Error calling Gemini API:", error);
       throw new Error(
