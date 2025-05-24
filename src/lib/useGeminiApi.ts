@@ -1,4 +1,9 @@
-import { GoogleGenAI, GenerateContentResponse, type Part } from "@google/genai";
+import {
+  GoogleGenAI,
+  GenerateContentResponse,
+  type Part,
+  Type,
+} from "@google/genai";
 
 export function useGeminiApi(apiKey: string) {
   const processVoiceInput = async (
@@ -23,25 +28,40 @@ export function useGeminiApi(apiKey: string) {
         },
       };
 
-      // Create the content parts
+      // Create the content parts(if needed)
+      /*
       const textPart: Part = {
-        text: `respond in this format: '{"transcriptOfInput":"...","response":"..."}'`,
-      };
+        text: "",
+      };*/
 
       // Generate content with the audio input
       const result: GenerateContentResponse =
         await genAI.models.generateContent({
-          contents: [{ parts: [textPart, audioPart] }],
+          contents: [{ parts: [audioPart] }],
           config: {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
             maxOutputTokens: 1024,
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                transcriptOfInput: {
+                  type: Type.STRING,
+                },
+                response: {
+                  type: Type.STRING,
+                },
+              },
+              propertyOrdering: ["transcriptOfInput", "response"],
+            },
           },
           model: "gemini-2.0-flash-001",
         });
 
       // Return the response text
+      const usageMetadata = result.usageMetadata;
       const text = result.text;
       let jsonResponse: { transcriptOfInput: string; response: string };
       let transcriptOfInput: string | undefined;
@@ -51,7 +71,27 @@ export function useGeminiApi(apiKey: string) {
         transcriptOfInput = jsonResponse.transcriptOfInput;
         response = jsonResponse.response;
       }
-      return text + "\n" + transcriptOfInput + "\n" + response;
+      return (
+        "\ntranscriptOfInput: " +
+        transcriptOfInput +
+        "\nresponse: " +
+        response +
+        "\ntotalTokenCount: " +
+        usageMetadata?.totalTokenCount +
+        "\npromptTokensDetails: " +
+        usageMetadata?.promptTokensDetails
+          ?.map((detail) => `{${detail.modality}: ${detail.tokenCount}}`)
+          .join(", ") +
+        "\ncandidatesTokensDetails: " +
+        usageMetadata?.candidatesTokensDetails
+          ?.map((detail) => `{${detail.modality}: ${detail.tokenCount}}`)
+          .join(", ") +
+        "\n--------------------" +
+        "\nreturnedText: " +
+        text +
+        "\nusageMetaData: " +
+        JSON.stringify(usageMetadata)
+      );
     } catch (error) {
       console.error("Error calling Gemini API:", error);
       throw new Error(
