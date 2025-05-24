@@ -5,39 +5,40 @@ interface ApiKeyInputProps {
   setApiKey: (key: string) => void;
 }
 
-const ApiKeyInput = ({ apiKey, setApiKey }: ApiKeyInputProps) => {
+export function ApiKeyInput({ apiKey, setApiKey }: ApiKeyInputProps) {
   const [showApiKey, setShowApiKey] = useState(false);
 
   return (
-    <div className="mb-6">
+    <div>
       <label
         htmlFor="api-key"
-        className="block text-sm font-medium text-gray-700 mb-1"
+        className="block text-sm font-medium text-slate-700 mb-2"
       >
         Gemini API Key
       </label>
-      <div className="relative">
-        <input
-          type={showApiKey ? "text" : "password"}
-          id="api-key"
-          value={apiKey}
-          onChange={(e) => setApiKey(e.target.value)}
-          placeholder="Enter your Gemini API key"
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-        <button
-          type="button"
-          onClick={() => setShowApiKey(!showApiKey)}
-          className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-        >
-          {showApiKey ? "Hide" : "Show"}
-        </button>
+      <div className="flex gap-2">
+        <div className="relative flex-grow">
+          <input
+            id="api-key"
+            type={showApiKey ? "text" : "password"}
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your Gemini API key"
+            className="w-full px-4 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="button"
+            onClick={() => setShowApiKey(!showApiKey)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+          >
+            {showApiKey ? "Hide" : "Show"}
+          </button>
+        </div>
       </div>
-      <p className="mt-1 text-xs text-gray-500">
-        You can get an API key from the Google AI Studio
+      <p className="mt-2 text-xs text-slate-500">
+        Your API key is stored locally in your browser and never sent to our
+        servers.
       </p>
     </div>
   );
-};
-
-export default ApiKeyInput;
+}
